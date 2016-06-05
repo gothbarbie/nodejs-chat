@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Chat</title>
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" media="screen" charset="utf-8">
+
+        <style media="screen">
+            body, html {
+                margin: 0;
+                color: #555;
+                font: 100% "Roboto";
+            }
+            .chat {
+                width: 100%;
+            }
+            .chat__list {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+            .chat__list-item {
+                padding: 10px;
+                font-size: .9em;
+            }
+            .chat__list-item:nth-child(odd) {
+                background-color: #f5f5f5;
+            }
+            .chat__input {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                padding: 10px;
+                border: 3px soldid #f5f5f5;
+                font-size: .9em;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>NodeJS Chat</h1>
+        <div class="chat">
+            <ul class="chat__list">
+                <li class="chat__list-item" v-for="message in messages" track-by="$index">{{ message }}</li>
+            </ul>
+
+            <input class="chat__input" type="text" v-model="message" v-on:keydown="send" placeholder="Type a message...">
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.14/vue.js" charset="utf-8"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js" charset="utf-8"></script>
+        <script type="text/javascript">
+            var socket = io();
+
+            new Vue({
+                el: '.chat',
+                data: {
+                    message: '',
+                    messages: []
+                },
+                methods: {
+                    send: function(e) {
+                        if(e.keyCode !== 13) { // send on Enter-key
+                            return;
+                        }
+
+                        socket.emit('message.sent', this.message);
+
+                        this.message = '';
+                    }
+                },
+                ready: function() {
+                    socket.on('message', function(message) {
+                        this.messages.push(message);
+                    }.bind(this));
+                }
+            });
+        </script>
+    </body>
+</html>
